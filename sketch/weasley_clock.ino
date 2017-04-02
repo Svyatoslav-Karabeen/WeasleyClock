@@ -77,10 +77,6 @@ void setup() {
 
 uint32_t x=0;
 
-
-
-
-
 void loop() {
 
     Serial.println("\nConnecting to feed...\n*");            
@@ -136,8 +132,6 @@ void loop() {
     }
     Serial.println("\n\n\n");
 }
-
-
 
 
 
