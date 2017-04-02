@@ -35,6 +35,9 @@ const int STEPS_MORTALPERIL  = 256;
 const int STEPS_GROCERY      = 341;
 const int STEPS_UNIVERSITY   = 426;
 
+const int buzzer = 9;                                       // Buzzer (Pin 9)
+
+
 /* =====================       Ethernet & MQTT setup    =====================*/
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };        // Ethernet shield MAC addrees
@@ -52,9 +55,9 @@ Adafruit_MQTT_Subscribe clockStatus = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAM
 
 
 
-
-
 void setup() {
+
+    pinMode(buzzer, OUTPUT);                                // Set buzzer as an output
     
     Serial.begin(115200);                                   // Start the serial connection
     while(! Serial);                                        // Wait for serial monitor to open
@@ -74,13 +77,17 @@ void setup() {
 
 uint32_t x=0;
 
+
+
+
+
 void loop() {
 
     Serial.println("\nConnecting to feed...\n*");            
     MQTT_connect();                                         // Run the connecting void (below)
 
     Serial.println("Reading the feed...\n*\n*\n*\n*\n*");            
-    Adafruit_MQTT_Subscribe *subscription;                  // Subscribing to feed
+    Adafruit_MQTT_Subscribe *subscription;                  // Subscribe to feed
     
     while ((subscription = mqtt.readSubscription(1000))) {
         if (subscription == &clockStatus) {                 // Reading latest value
@@ -89,28 +96,34 @@ void loop() {
             Serial.print(fValue);
             Serial.println("\n");
             
-            if(fValue == "id_home") {                       // Let the magic happen
+            if(fValue == "id_home") {                       // if string match data from the feed
                 Serial.println("Home");
-                stepBySteps(STEPS_HOME);
+                buzzSound();                                // play sound notification (see void below)
+                stepBySteps(STEPS_HOME);                    // change stepper motor position (see void below)
             }
             if(fValue == "id_holiday") {
                 Serial.println("on holiday");
+                buzzSound();
                 stepBySteps(STEPS_HOLIDAY);
             }
             if(fValue == "id_peril") {
                 Serial.println("Mortal Peril");
+                buzzSound();
                 stepBySteps(STEPS_MORTALPERIL);
             }
             if(fValue == "id_grocery") {
                 Serial.println("at Tesco");
+                buzzSound();
                 stepBySteps(STEPS_GROCERY);
             }
             if(fValue == "id_university") {
                 Serial.println("at University");
+                buzzSound();
                 stepBySteps(STEPS_UNIVERSITY);
             }
             if(fValue == "id_ontheway") {
                 Serial.println("at University");
+                buzzSound();
                 stepBySteps(STEPS_UNIVERSITY);
             }  
         }
@@ -124,16 +137,21 @@ void loop() {
     Serial.println("\n\n\n");
 }
 
+
+
+
+
+
 void MQTT_connect() {
     
     int8_t ret;
     
-    if (mqtt.connected()) {                                // if connected then return to the loop void
+    if (mqtt.connected()) {                                 // if connected then return to the loop void
         return;
     }
 
     Serial.print("Connecting to MQTT... ");
-    while ((ret = mqtt.connect()) != 0) {                  // Connect (or retry to connect)
+    while ((ret = mqtt.connect()) != 0) {                   // Connect (or retry to connect)
             Serial.println(mqtt.connectErrorString(ret));
             Serial.println("Retrying MQTT connection in 5 seconds...");
             mqtt.disconnect();
@@ -144,7 +162,7 @@ void MQTT_connect() {
     Serial.println("Connected!\n");
 }
 
-void stepBySteps(int newPosition) {                        // Calculate how many steps motor should do
+void stepBySteps(int newPosition) {                         // Calculate how many steps motor should do
     if(motorPosition == newPosition) {
         Serial.println("No movement required.");
         return;
@@ -156,4 +174,18 @@ void stepBySteps(int newPosition) {                        // Calculate how many
     motorPosition = newPosition;
     Serial.print("position should now be:" );
     Serial.println(motorPosition);
+}
+
+void buzzSound() {                                          // Sound notification
+    tone(buzzer, 1000); 
+    delay(200);        
+    noTone(buzzer);    
+    delay(200);
+    tone(buzzer, 1000); 
+    delay(200);        
+    noTone(buzzer);    
+    delay(200);         
+    tone(buzzer, 1000); 
+    delay(200);        
+    noTone(buzzer);                      
 }
