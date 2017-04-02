@@ -42,6 +42,7 @@ const int buzzer = 9;                                       // Buzzer (Pin 9)
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };        // Ethernet shield MAC addrees
 
+/* !!!!!! Replace "your_username" and "XXXX" with your username and adafruit.io key below !!!!!*/
 #define AIO_SERVER      "io.adafruit.com"                   // Adafruit IO access
 #define AIO_SERVERPORT  1883
 #define AIO_USERNAME    "your_username"
@@ -50,8 +51,10 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };        // Ethernet shield M
 EthernetClient client;
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
-#define halt(s) { Serial.println(F( s )); while(1);  }  
-Adafruit_MQTT_Subscribe clockStatus = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/weasleyclockstatus");
+#define halt(s) { Serial.println(F( s )); while(1);  }
+
+/* !!!!!! Replace "your_feed_name" with the name of your adafruit.io feed name below !!!!!*/
+Adafruit_MQTT_Subscribe clockStatus = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/your_feed_name");
 
 
 
